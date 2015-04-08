@@ -8,6 +8,7 @@ import org.junit.experimental.theories.ParameterSignature;
 import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.internal.Assignments;
 import org.junit.internal.AssumptionViolatedException;
+import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
@@ -19,13 +20,13 @@ public class StubbedTheories extends Theories {
     }
 
     @Override
-    public Statement methodBlock(FrameworkMethod method) {
-        return new StubbedTheoryAnchor(method, getTestClass());
+    public Statement methodBlock(FrameworkMethod method, RunNotifier notifier) {
+        return new StubbedTheoryAnchor(notifier, method, getTestClass());
     }
 
     public static class StubbedTheoryAnchor extends TheoryAnchor {
-        public StubbedTheoryAnchor(FrameworkMethod method, TestClass testClass) {
-            super(method, testClass);
+        public StubbedTheoryAnchor(RunNotifier notifier, FrameworkMethod method, TestClass testClass) {
+            super(notifier, method, testClass);
         }
 
         private List<GuesserQueue> queues = new ArrayList<GuesserQueue>();

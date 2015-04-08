@@ -12,6 +12,7 @@ import org.junit.Assume;
 import org.junit.experimental.theories.internal.Assignments;
 import org.junit.experimental.theories.internal.ParameterizedAssertionError;
 import org.junit.internal.AssumptionViolatedException;
+import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
@@ -161,8 +162,8 @@ public class Theories extends BlockJUnit4ClassRunner {
     }
 
     @Override
-    public Statement methodBlock(final FrameworkMethod method) {
-        return new TheoryAnchor(method, getTestClass());
+    public Statement methodBlock(final FrameworkMethod method, RunNotifier notifier) {
+        return new TheoryAnchor(notifier, method, getTestClass());
     }
 
     public static class TheoryAnchor extends Statement {
@@ -170,12 +171,14 @@ public class Theories extends BlockJUnit4ClassRunner {
 
         private final FrameworkMethod testMethod;
         private final TestClass testClass;
+        private final RunNotifier notifier;
 
         private List<AssumptionViolatedException> fInvalidParameters = new ArrayList<AssumptionViolatedException>();
 
-        public TheoryAnchor(FrameworkMethod testMethod, TestClass testClass) {
+        public TheoryAnchor(RunNotifier notifier, FrameworkMethod testMethod, TestClass testClass) {
             this.testMethod = testMethod;
             this.testClass = testClass;
+            this.notifier = notifier;
         }
 
         private TestClass getTestClass() {
@@ -223,8 +226,8 @@ public class Theories extends BlockJUnit4ClassRunner {
                 }
 
                 @Override
-                public Statement methodBlock(FrameworkMethod method) {
-                    final Statement statement = super.methodBlock(method);
+                public Statement methodBlock(FrameworkMethod method, RunNotifier notifier) {
+                    final Statement statement = super.methodBlock(method, notifier);
                     return new Statement() {
                         @Override
                         public void evaluate() throws Throwable {
@@ -257,7 +260,7 @@ public class Theories extends BlockJUnit4ClassRunner {
                     
                     return getTestClass().getOnlyConstructor().newInstance(params);
                 }
-            }.methodBlock(testMethod).evaluate();
+            }.methodBlock(testMethod, notifier).evaluate();
         }
 
         private Statement methodCompletesWithParameters(

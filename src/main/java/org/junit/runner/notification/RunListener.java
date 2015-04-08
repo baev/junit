@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 
 import org.junit.runner.Description;
 import org.junit.runner.Result;
+import org.junit.runners.model.FrameworkMethod;
 
 /**
  * Register an instance of this class with {@link RunNotifier} to be notified
@@ -50,6 +51,12 @@ import org.junit.runner.Result;
  * @since 4.0
  */
 public class RunListener {
+
+    public void beforeFrameworkMethodCalled(FrameworkMethod method, Description description) {
+    }
+
+    public void afterFrameworkMethodCalled(FrameworkMethod method, Description description) {
+    }
 
     /**
      * Called before any tests have been run. This may be called on an

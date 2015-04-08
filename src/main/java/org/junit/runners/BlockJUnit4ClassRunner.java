@@ -79,7 +79,7 @@ public class BlockJUnit4ClassRunner extends ParentRunner<FrameworkMethod> {
         } else {
             Statement statement;
             try {
-                statement = methodBlock(method);
+                statement = methodBlock(method, notifier);
             }
             catch (Throwable ex) {
                 statement = new Fail(ex);
@@ -276,7 +276,7 @@ public class BlockJUnit4ClassRunner extends ParentRunner<FrameworkMethod> {
      * This can be overridden in subclasses, either by overriding this method,
      * or the implementations creating each sub-statement.
      */
-    protected Statement methodBlock(final FrameworkMethod method) {
+    protected Statement methodBlock(final FrameworkMethod method, RunNotifier notifier) {
         Object test;
         try {
             test = new ReflectiveCallable() {
@@ -292,8 +292,8 @@ public class BlockJUnit4ClassRunner extends ParentRunner<FrameworkMethod> {
         Statement statement = methodInvoker(method, test);
         statement = possiblyExpectingExceptions(method, test, statement);
         statement = withPotentialTimeout(method, test, statement);
-        statement = withBefores(method, test, statement);
-        statement = withAfters(method, test, statement);
+        statement = withBefores(notifier, method, test, statement);
+        statement = withAfters(notifier, method, test, statement);
         statement = withRules(method, test, statement);
         return statement;
     }
@@ -344,11 +344,11 @@ public class BlockJUnit4ClassRunner extends ParentRunner<FrameworkMethod> {
      * methods on this class and superclasses before running {@code next}; if
      * any throws an Exception, stop execution and pass the exception on.
      */
-    protected Statement withBefores(FrameworkMethod method, Object target,
+    protected Statement withBefores(RunNotifier notifier, FrameworkMethod method, Object target,
             Statement statement) {
         List<FrameworkMethod> befores = getTestClass().getAnnotatedMethods(
                 Before.class);
-        return befores.isEmpty() ? statement : new RunBefores(statement,
+        return befores.isEmpty() ? statement : new RunBefores(notifier, describeChild(method), statement,
                 befores, target);
     }
 
@@ -359,11 +359,11 @@ public class BlockJUnit4ClassRunner extends ParentRunner<FrameworkMethod> {
      * are combined, if necessary, with exceptions from After methods into a
      * {@link MultipleFailureException}.
      */
-    protected Statement withAfters(FrameworkMethod method, Object target,
+    protected Statement withAfters(RunNotifier notifier, FrameworkMethod method, Object target,
             Statement statement) {
         List<FrameworkMethod> afters = getTestClass().getAnnotatedMethods(
                 After.class);
-        return afters.isEmpty() ? statement : new RunAfters(statement, afters,
+        return afters.isEmpty() ? statement : new RunAfters(notifier, describeChild(method), statement, afters,
                 target);
     }
 

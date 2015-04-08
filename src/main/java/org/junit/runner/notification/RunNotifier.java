@@ -8,6 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.junit.runner.Description;
 import org.junit.runner.Result;
+import org.junit.runners.model.FrameworkMethod;
 
 /**
  * If you write custom runners, you may need to notify JUnit of your progress running tests.
@@ -191,6 +192,25 @@ public class RunNotifier {
             }
         }.run();
     }
+
+    public void fireBeforeFrameworkMethodCalled(final FrameworkMethod method, final Description description) {
+        new SafeNotifier() {
+            @Override
+            protected void notifyListener(RunListener each) throws Exception {
+                each.beforeFrameworkMethodCalled(method, description);
+            }
+        }.run();
+    }
+
+    public void fireAfterFrameworkMethodCalled(final FrameworkMethod method, final Description description) {
+        new SafeNotifier() {
+            @Override
+            protected void notifyListener(RunListener each) throws Exception {
+                each.afterFrameworkMethodCalled(method, description);
+            }
+        }.run();
+    }
+
 
     /**
      * Ask that the tests run stop before starting the next test. Phrased politely because

@@ -2,6 +2,7 @@ package org.junit.runner.notification;
 
 import org.junit.runner.Description;
 import org.junit.runner.Result;
+import org.junit.runners.model.FrameworkMethod;
 
 /**
  * Thread-safe decorator for {@link RunListener} implementations that synchronizes
@@ -27,6 +28,20 @@ final class SynchronizedRunListener extends RunListener {
     SynchronizedRunListener(RunListener listener, Object monitor) {
         this.listener = listener;
         this.monitor = monitor;
+    }
+
+    @Override
+    public void beforeFrameworkMethodCalled(FrameworkMethod method, Description description) {
+        synchronized (monitor) {
+            listener.beforeFrameworkMethodCalled(method, description);
+        }
+    }
+
+    @Override
+    public void afterFrameworkMethodCalled(FrameworkMethod method, Description description) {
+        synchronized (monitor) {
+            listener.afterFrameworkMethodCalled(method, description);
+        }
     }
 
     @Override

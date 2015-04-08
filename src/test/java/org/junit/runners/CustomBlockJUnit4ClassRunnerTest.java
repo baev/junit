@@ -52,11 +52,11 @@ public class CustomBlockJUnit4ClassRunnerTest {
 		}
 
 		@Override
-		protected Statement methodBlock(FrameworkMethod method) {
+		protected Statement methodBlock(FrameworkMethod method, RunNotifier notifier) {
 			if ("throwException".equals(method.getName())) {
 				throw new RuntimeException("throwException() test method invoked");
 			}
-			return super.methodBlock(method);
+			return super.methodBlock(method, notifier);
 		}
 	}
 

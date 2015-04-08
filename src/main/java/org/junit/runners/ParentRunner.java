@@ -189,8 +189,8 @@ public abstract class ParentRunner<T> extends Runner implements Filterable,
     protected Statement classBlock(final RunNotifier notifier) {
         Statement statement = childrenInvoker(notifier);
         if (!areAllChildrenIgnored()) {
-            statement = withBeforeClasses(statement);
-            statement = withAfterClasses(statement);
+            statement = withBeforeClasses(notifier, statement);
+            statement = withAfterClasses(notifier, statement);
             statement = withClassRules(statement);
         }
         return statement;
@@ -210,11 +210,11 @@ public abstract class ParentRunner<T> extends Runner implements Filterable,
      * and superclasses before executing {@code statement}; if any throws an
      * Exception, stop execution and pass the exception on.
      */
-    protected Statement withBeforeClasses(Statement statement) {
+    protected Statement withBeforeClasses(RunNotifier notifier, Statement statement) {
         List<FrameworkMethod> befores = testClass
                 .getAnnotatedMethods(BeforeClass.class);
         return befores.isEmpty() ? statement :
-                new RunBefores(statement, befores, null);
+                new RunBefores(notifier, getDescription(), statement, befores, null);
     }
 
     /**
@@ -224,11 +224,11 @@ public abstract class ParentRunner<T> extends Runner implements Filterable,
      * necessary, with exceptions from AfterClass methods into a
      * {@link org.junit.runners.model.MultipleFailureException}.
      */
-    protected Statement withAfterClasses(Statement statement) {
+    protected Statement withAfterClasses(RunNotifier notifier, Statement statement) {
         List<FrameworkMethod> afters = testClass
                 .getAnnotatedMethods(AfterClass.class);
         return afters.isEmpty() ? statement :
-                new RunAfters(statement, afters, null);
+                new RunAfters(notifier, getDescription(), statement, afters, null);
     }
 
     /**
